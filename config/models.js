@@ -74,95 +74,11 @@ module.exports.models = {
         unique: true
       }
     },
-    // id: { type: 'number', autoIncrement: true, },
-    // id: { type: 'string', required: true, unique: true, isUUID: true, maxLength: 36, columnType: 'varchar(36)', },
-    //--------------------------------------------------------------------------
-    //  /\   Using MongoDB?
-    //  ||   Replace `id` above with this instead:
-    //
-    // ```
-    // id: { type: 'string', columnName: '_id' },
-    // ```
-    //
-    // Plus, don't forget to configure MongoDB as your default datastore:
-    // https://sailsjs.com/docs/tutorials/using-mongo-db
-    //--------------------------------------------------------------------------
     createdAt: { type: 'number', autoCreatedAt: true },
     updatedAt: { type: 'number', autoUpdatedAt: true }
   },
 
-  /******************************************************************************
-   *                                                                             *
-   * The set of DEKs (data encryption keys) for at-rest encryption.              *
-   * i.e. when encrypting/decrypting data for attributes with `encrypt: true`.   *
-   *                                                                             *
-   * > The `default` DEK is used for all new encryptions, but multiple DEKs      *
-   * > can be configured to allow for key rotation.  In production, be sure to   *
-   * > manage these keys like you would any other sensitive credential.          *
-   *                                                                             *
-   * > For more info, see:                                                       *
-   * > https://sailsjs.com/docs/concepts/orm/model-settings#?dataEncryptionKeys  *
-   *                                                                             *
-   ******************************************************************************/
-
-  dataEncryptionKeys: {
-    default: '2L5OJIuuy2JaTwHC3/JgR6nBEsNGPtC0YrGp/ryW/Go='
-  },
-
-  /***************************************************************************
-   *                                                                          *
-   * Whether or not implicit records for associations should be cleaned up    *
-   * automatically using the built-in polyfill.  This is especially useful    *
-   * during development with sails-disk.                                      *
-   *                                                                          *
-   * Depending on which databases you're using, you may want to disable this  *
-   * polyfill in your production environment.                                 *
-   *                                                                          *
-   * (For production configuration, see `config/env/production.js`.)          *
-   *                                                                          *
-   ***************************************************************************/
 
   cascadeOnDestroy: true,
 
-  /* Custom helper */
-  createIfNotExists: function(criteria, values, db) {
-    var self = this; // reference for use by callbacks
-
-    // If no values were specified, use criteria
-    if (!values) {
-      values = criteria.where ? criteria.where : criteria;
-    }
-
-    return this.findOne(criteria).then(result => {
-      if (!result) {
-        if (db) { return self.create(values).fetch().usingConnection(db); }
-        else { return self.create(values).fetch(); }
-      }
-
-      return result;
-    });
-  },
-  updateOrCreate: function(criteria, values, db) {
-    var self = this; // reference for use by callbacks
-
-    // If no values were specified, use criteria
-    if (!values) {
-      values = criteria.where ? criteria.where : criteria;
-    }
-
-    return this.findOne(criteria).then(result => {
-      if (result) {
-        // console.log("update", criteria, values);
-        const normalisedValues = _.extend({}, values);
-        delete normalisedValues['id'];
-
-        if (db) { return self.updateOne(criteria).set(normalisedValues).usingConnection(db); }
-        else { return self.updateOne(criteria).set(normalisedValues); }
-
-      } else {
-        if (db) { return self.create(values).fetch().usingConnection(db); }
-        else { return self.create(values).fetch(); }
-      }
-    });
-  }
 };
